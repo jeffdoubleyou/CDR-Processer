@@ -11,10 +11,11 @@ import (
 	// "encoding/csv"
 	"encoding/json"
 	"fmt"
-	"ko/CDRSubfields"
 	"os"
 	"strings"
 	"sync"
+
+	"CDR-Processer/CDRSubfields"
 )
 
 // Cdrcollection holds too slices containing Stop records and attempt records

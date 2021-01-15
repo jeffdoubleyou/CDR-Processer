@@ -16,11 +16,10 @@ import (
 	"CDR-Processer/FileHandling"
 	"database/sql"
 	"encoding/csv"
+
 	// "encoding/json"
-	"code.google.com/p/gcfg"
 	"flag"
 	"fmt"
-	_ "github.com/go-sql-driver/mysql"
 	"log"
 	"log/syslog"
 	"os"
@@ -28,6 +27,9 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	_ "github.com/go-sql-driver/mysql"
+	"gopkg.in/gcfg.v1"
 )
 
 //variables for displaying version information
