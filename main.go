@@ -39,13 +39,15 @@ var buildNumber string
 
 type Configuration struct {
 	Required struct {
-		FileDir string
-		DbHost  string
-		DbPort  int
-		DbUser  string
-		DBPass  string
-		DSN     string
-		FileExt string
+		FileDir         string
+		DbHost          string
+		DbPort          int
+		DbUser          string
+		DBPass          string
+		DSN             string
+		FileExt         string
+		MaxOpenConns    int
+		ConnMaxLifetime time.Duration
 	}
 }
 
@@ -94,7 +96,7 @@ func saveRecord(wg *sync.WaitGroup, db sql.DB, records []map[string]string, reco
 			placeHoldersString := strings.Join(placeHolders, ", ")
 
 			//create the prepared statment
-			stmt, err := tx.Prepare("INSERT INTO " + dbName + "." + recordType + "(" + columnsString + ") VALUES(" + placeHoldersString + ")")
+			stmt, err := tx.Prepare("INSERT INTO " + dbName + "." + recordType + "(" + columnsString + ") VALUES(" + placeHoldersString + ") ON DUPLICATE KEY UPDATE row_id = row_id")
 			if err != nil {
 				// log.Fatal(err)
 				fmt.Println("prepare error")
@@ -152,7 +154,7 @@ func main() {
 	}
 	log.SetFlags(0)
 	log.Println("CARGO Starting")
-
+	fmt.Println("CARGO Starting")
 	//load config from from config file
 	// configFile, _ := os.Open("config.json")
 	// decoder := json.NewDecoder(configFile)
@@ -205,8 +207,18 @@ func main() {
 		}
 
 		if len(files) == 0 {
+			select {
+			case exitStatus := <-wantToExit:
+				if exitStatus {
+					log.Println("Exiting Gracefully, not processing any files")
+					os.Exit(0)
+				}
+			default:
+				//do nothing
+			}
 			log.Println("No files waiting. Sleeping for 60 seconds")
-			time.Sleep(time.Second * 60)
+			time.Sleep(time.Second * 5)
+
 			continue
 		} else {
 			log.Printf("Processing %d Files\n", len(files))
@@ -224,11 +236,15 @@ func main() {
 			log.Fatal(err)
 		}
 
+		db.SetMaxOpenConns(configuration.Required.MaxOpenConns)
+		db.SetConnMaxLifetime(configuration.Required.ConnMaxLifetime)
+
 		defer db.Close()
 
 		// I don't like this giant loop but its a simple way to start and test
 		for _, file := range files {
-			fmt.Println("starting loop")
+			fileProcessStart := time.Now()
+			fmt.Printf("Processing %s\n", file)
 			csvFile, err := os.Open(file)
 			if err != nil {
 				fmt.Println(err)
@@ -261,6 +277,7 @@ func main() {
 			attemptRecords := make([]map[string]string, len(cdrCollection.Attempts))
 			startRecords := make([]map[string]string, len(cdrCollection.Starts))
 
+			log.Printf("File %s statistics - ATTEMPT: %d START: %d STOP %d\n", file, len(cdrCollection.Attempts), len(cdrCollection.Starts), len(cdrCollection.Stops))
 			//Populate the containers of CDR Data
 			go func() {
 				stopRecords = (CDR.CreateRecordMap(&wg, cdrCollection.Stops, "stops"))
@@ -273,11 +290,16 @@ func main() {
 			}()
 
 			wg.Wait() //Wait for the concurrent routines to call 'done'
-			log.Println("Done parsing file")
+
+			fileProcessDuration := time.Now().Sub(fileProcessStart)
+
+			log.Printf("Done parsing %s which took %s", file, fileProcessDuration)
 
 			//get the dbname from the dsn in the config
 			dsnParts := strings.Split(configuration.Required.DSN, "/")
 			dbName := dsnParts[1]
+
+			insertStart := time.Now()
 
 			//Begin inserting CDR Data
 			wg.Add(3)
@@ -286,6 +308,8 @@ func main() {
 			go saveRecord(&wg, *db, startRecords, "starts", transactionChunk, dbName)
 			wg.Wait() //Wait for the concurrent routines to call 'done'
 
+			insertDuration := time.Now().Sub(insertStart)
+			log.Printf("Done inserting records for %s which took %s", file, insertDuration)
 			//archive the raw files
 			log.Println("Archiving " + file)
 			res := FileHandling.ArchiveFile(file)
@@ -319,8 +343,8 @@ func main() {
 			return
 		}
 
-		fmt.Printf("%d Files took %f Seconds to process\n", len(files), time.Since(t0).Seconds())
 		log.Printf("%d Files took %f Seconds to process\n", len(files), time.Since(t0).Seconds())
+
 	} //end of main loop
 
 }

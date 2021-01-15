@@ -17,6 +17,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"time"
 )
 
 func FileList(dir string, ext string) []string {
@@ -30,9 +31,26 @@ func FileList(dir string, ext string) []string {
 	fileNames := make([]string, 0)
 
 	for _, file := range files {
-		fileNames = append(fileNames, file)
+		if _, err := fileIsOpen(file); err != nil {
+			fmt.Printf("File %s is currently open by another process\n", file)
+		} else {
+			fileNames = append(fileNames, file)
+		}
 	}
 	return fileNames
+}
+
+func fileIsOpen(path string) (bool, error) {
+	fileInfo, err := os.Stat(path)
+	if err != nil {
+		return false, err
+	}
+	lastMod := time.Since(fileInfo.ModTime()).Seconds()
+	log.Printf("%s was last modified %2f seconds ago\n", path, lastMod)
+	if lastMod < 15 {
+		return true, fmt.Errorf("File is still open")
+	}
+	return false, nil
 }
 
 func ArchiveFile(filename string) bool {

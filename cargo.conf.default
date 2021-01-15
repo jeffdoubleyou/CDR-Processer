@@ -11,3 +11,7 @@ DSN = "root:root@tcp(127.0.0.1:3306)/cdrdatabasename"
 # For exampl if ACT is listed as your extention the application will 
 # look in your <FileDir> for *.ACT files.
 FileExt = "ACT"
+
+# MySQL Connection Settings
+MaxOpenConns = 20
+ConnMaxLifetime = 10
