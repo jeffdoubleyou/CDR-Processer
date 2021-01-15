@@ -217,7 +217,7 @@ func main() {
 				//do nothing
 			}
 			log.Println("No files waiting. Sleeping for 60 seconds")
-			time.Sleep(time.Second * 5)
+			time.Sleep(time.Second * 60)
 
 			continue
 		} else {
