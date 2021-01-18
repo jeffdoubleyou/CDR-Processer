@@ -20,7 +20,7 @@ cd $CDIR
 echo "Installation complete!"
 exit 0
 
-ARCHIVE:' > installer
+ARCHIVE:' > dist/installer
 
-tar -cvz - SQL bin cargo.conf.default scripts >> installer
-chmod 755 installer
+tar -cvz - SQL bin cargo.conf.default scripts >> dist/installer
+chmod 755 dist/installer

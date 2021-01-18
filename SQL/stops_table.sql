@@ -1,4 +1,4 @@
-CREATE TABLE `stops` (
+CREATE TABLE IF NOT EXISTS `stops` (
   `row_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `Record_Type` varchar(12) Not NULL,
   `Gateway_Name` varchar(27) NOT NULL DEFAULT '0',

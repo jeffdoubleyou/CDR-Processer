@@ -1,4 +1,4 @@
-CREATE TABLE `starts` (
+CREATE TABLE IF NOT EXISTS `starts` (
   `row_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
 `Record_Type` varchar(12) Not NULL,
 `Gateway_Name`  varchar(23) NOT NULL DEFAULT '''''' COMMENT '2',

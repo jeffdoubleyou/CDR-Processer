@@ -35,9 +35,9 @@ read -p "Create Database Tables? [y/N]: " CREATE_TABLES
 
 if [ $CREATE_TABLES = y ]; then
     echo "Creating database tables in $DB_DATABASE";
-    mysql -h$DB_HOST -u$DB_USER -p$DB_PASS -D$DB_DATABASE < SQL/attempts_table.sql
-    mysql -h$DB_HOST -u$DB_USER -p$DB_PASS -D$DB_DATABASE < SQL/starts_table.sql
-    mysql -h$DB_HOST -u$DB_USER -p$DB_PASS -D$DB_DATABASE < SQL/stops_table.sql
+    mysql -h$DB_HOST -u$DB_USER -p$DB_PASS -D$DB_DATABASE < SQL/attempts_table.sql >> /dev/null 2>&1
+    mysql -h$DB_HOST -u$DB_USER -p$DB_PASS -D$DB_DATABASE < SQL/starts_table.sql >> /dev/null 2>&1
+    mysql -h$DB_HOST -u$DB_USER -p$DB_PASS -D$DB_DATABASE < SQL/stops_table.sql >> /dev/null 2>&1
 fi
 
 DSN="$DB_USER:$DB_PASS@tcp($DB_HOST:3306)/$DB_DATABASE"
