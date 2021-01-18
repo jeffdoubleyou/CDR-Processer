@@ -25,7 +25,7 @@ DB_HOST=${DB_HOST:-127.0.0.1}
 read -p "MySQL user: [root]: " DB_USER
 DB_USER=${DB_USER:-root}
 
-read -p "MySQL password: [root]: " DB_PASS
+read -s -p "MySQL password: [root]: " DB_PASS
 DB_PASS=${DB_PASS:-root}
 
 read -p "MySQL database: [cdr]: " DB_DATABASE
