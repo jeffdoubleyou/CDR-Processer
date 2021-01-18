@@ -57,7 +57,7 @@ if [ $OS = "Linux" ]; then
     cp bin/cargo_linux $InstallLoc/cargo
     chmod 755 $InstallLoc/cargo
     if [ -e /sbin/init ]; then
-        if [ $(/sbin/init | grep -c upstart) != 0 ]; then
+        if [ $(/sbin/init --version | grep -c upstart) != 0 ]; then
             echo -n "Install service..."
             cp scripts/init /etc/init/cargo.conf
             initctl reload-configuration
