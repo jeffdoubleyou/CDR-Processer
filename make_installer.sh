@@ -9,7 +9,7 @@ echo "Installing cargo..."
 
 ARCHIVE=`awk "/^ARCHIVE:/ {print NR + 1; exit 0; }" $0`
 
-tail -n+$ARCHIVE $0 | tar -xzv -C $TMP
+tail -n+$ARCHIVE $0 | tar -xz -C $TMP
 
 CDIR=`pwd`
 
