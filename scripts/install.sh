@@ -27,6 +27,7 @@ DB_USER=${DB_USER:-root}
 
 read -s -p "MySQL password: [root]: " DB_PASS
 DB_PASS=${DB_PASS:-root}
+echo ""
 
 read -p "MySQL database: [cdr]: " DB_DATABASE
 DB_DATABASE=${DB_DATABASE:-cdr}
