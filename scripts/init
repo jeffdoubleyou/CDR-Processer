@@ -1,0 +1,38 @@
+description "Cargo Sonus ACT file importer"
+author      "Jeffrey Weitz <jeffdoubleyou@gmail.com>, jpweber"
+
+env EXEC=/usr/local/cargo/cargo
+env PIDFILE=/var/run/cargo.pid
+
+start on runlevel [2345]
+stop on runlevel [!2345]
+
+console output
+
+# Increase open file descriptors limit
+limit nofile 10240 10240
+
+# Restart automatically proces in case of crash
+respawn
+
+# Stop respawn if it occured more than 10 times during 60 seconds period.
+# This means serious problems
+respawn limit 10 60
+
+# Current working directory for cargo process
+chdir /usr/local/cargo
+
+# Enable core dumps for troubleshooting
+limit core unlimited unlimited
+
+instance cargo
+
+pre-stop script
+    rm $PIDFILE
+end script
+
+script
+    echo $$ > $PIDFILE
+    exec $EXEC
+end script
+
