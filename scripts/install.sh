@@ -70,6 +70,7 @@ if [ $OS = "Linux" ]; then
         echo "Installing systemd service"
         cp scripts/systemd /etc/systemd/system/cargo.service
         systemctl daemon-reload
+        systemctl enable myservice
         systemctl start cargo
     else
         echo "No sys-v support implemented, please manually run the daemon from the $InstallLoc directory"
